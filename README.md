@@ -78,7 +78,7 @@ graph TD
 ### Passos
 1.  **Clone o repositório:**
     >```sh
-    >git clone [https://github.com/KronosZbr/Reservas_Salas_Final.git](https://github.com/KronosZbr/Reservas_Salas_Final.git)
+    >git clone https://github.com/KronosZbr/Reservas_Salas_Final.git
     >```
 2.  **Navegue até a pasta raiz do projeto:**
     ```sh
