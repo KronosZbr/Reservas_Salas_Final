@@ -110,3 +110,6 @@ Para uma documentação detalhada e interativa, acesse os seguintes links enquan
 * **User Service:** `http://localhost:8081/swagger-ui.html`
 * **Sala Service:** `http://localhost:8082/swagger-ui.html`
 * **Reserva Service:** `http://localhost:8083/swagger-ui.html`
+
+
+Esse projeto foi desenvolvido por João Vitor Dysarz 
