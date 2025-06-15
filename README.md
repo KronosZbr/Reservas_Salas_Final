@@ -1,118 +1,119 @@
-# 🏢 Sistema de Reservas de Salas – Arquitetura com Microserviços
+# 🚀 Sistema de Reserva de Salas com Microserviços
 
-Projeto desenvolvido com foco em **microserviços desacoplados**, permitindo o gerenciamento independente de usuários, salas e reservas. A arquitetura utiliza contêineres Docker para empacotamento e orquestração dos serviços.
+![Java](https://img.shields.io/badge/Java-17-blue.svg)
+![Spring](https://img.shields.io/badge/Spring_Boot-3.2.5-green.svg)
+![Docker](https://img.shields.io/badge/Docker-blue.svg)
+![Maven](https://img.shields.io/badge/Maven-red.svg)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-blue.svg)
+![RabbitMQ](https://img.shields.io/badge/RabbitMQ-orange.svg)
 
-## Tecnologias Utilizadas
-- **Java 17 + Spring Boot 3.4.3**
-- **PostgreSQL** (um banco para cada serviço)
-- **Docker & Docker Compose**
-- **Adminer** (para gerenciar os bancos de dados)
-- **RabbitMQ** (para comunicação assincrona)
+Este projeto demonstra a implementação de um sistema de reserva de salas utilizando uma arquitetura de microserviços desacoplados. O objetivo é aplicar conceitos modernos de desenvolvimento de software, como comunicação assíncrona, conteinerização e um ponto de entrada único através de um API Gateway.
 
-## Estrutura do Projeto
+## ✨ Arquitetura do Sistema
 
-```
-reserva-salas/
-│-- microsala/       # Microserviço de Sala
-|   ├──demo/
-│     ├── Dockerfile
-│     ├── src/
-│-- microuser/       # Microserviço de Usuário
-|   ├──demo/
-│     ├── Dockerfile
-│     ├── src/
-│-- microreserva/    # Microserviço de Reserva
-|   ├──demo/
-│     ├── Dockerfile
-│     ├── src/
-│-- gateway/    # Microserviço de api gateway
-|   ├──demo/
-│     ├── Dockerfile
-│     ├── src/
-│-- docker-compose.yml # Gerencia todos os serviços
-│-- README.md          # Documentação do projeto
-```
+O diagrama abaixo ilustra a interação entre os componentes do sistema:
 
----
+```mermaid
+graph TD
+    subgraph "Cliente"
+        A[Usuário / Postman]
+    end
 
-## Como Rodar o Projeto 🚀
+    subgraph "Infraestrutura"
+        C(API Gateway)
+        F(RabbitMQ)
+    end
 
-### 1️⃣ **Rodar todos os serviços com Docker Compose**
-```sh
-docker-compose up -d --build
-```
-Isso irá subir:
-- **3 microserviços** (`microuser`, `microsala`, `microreserva`)
-- **3 bancos de dados PostgreSQL**
-- **Adminer** para gestão do banco
-- **RabbitMQ** para comunicação assincrona
-- **API Gateway** para centralização das chamadas http
+    subgraph "Microserviços"
+        D[User Service]
+        E[Sala Service]
+        G[Reserva Service]
+    end
 
-### 3️⃣ **Acessar o Adminer** (Gerenciador de Banco)
-- URL: `http://localhost:8080`
-- Sistema: **PostgreSQL**
-- Servidor: **localhost**
-- Usuário: **postgres**
-- Senha: **admin**
-- Base de Dados: **usersdb**, **salasdb**, **reservadb**
+    subgraph "Bancos de Dados"
+        H[(User DB)]
+        I[(Sala DB)]
+        J[(Reserva DB)]
+    end
 
----
+    A --> C
+    C -->|/users/**| D
+    C -->|/salas/**| E
+    C -->|/reservas/**| G
 
-## Testando as APIs no Postman
+    D --- H
+    E --- I
+    G --- J
 
-### **📌 microuser (`8081`)**
-#### **Criar um Usuário**
-**POST** `http://localhost:8081/users`
-```json
-{
-  "nome": "Arthur Ritzel",
-  "email": "ritzelarthur@email.com",
-  "senha": "123456",
-  "telefone": "11987654321",
-  "rua": "Rua das Resenhas",
-  "numero": "123",
-  "cidade": "Toledo",
-  "cep": "01010-010",
-  "cpf": "12345678901",
-  "dataNascimento": "2005-02-18",
-  "dataCadastro": "2025-02-25"
-}
+    D -- Publica Evento --> F
+    F -- Consome Evento --> G
 ```
 
-#### **Listar Usuários**
-**GET** `http://localhost:8081/users`
+## Core Concepts
 
----
+* **Microserviços:** Cada serviço possui uma única responsabilidade (Single Responsibility Principle) e seu próprio banco de dados, garantindo autonomia e escalabilidade.
+* **API Gateway:** O serviço `gateway` atua como um ponto de entrada único (`Single Point of Entry`), simplificando o consumo da API e centralizando a configuração de rotas e CORS.
+* **Comunicação Assíncrona:** O `user-service` notifica outros serviços sobre a criação e alteração de usuários através do RabbitMQ. Isso desacopla os serviços, de modo que o `reserva-service` não precisa se comunicar diretamente com o `user-service`.
+* **Containerização:** Todo o ambiente, incluindo os serviços, bancos de dados e o message broker, é orquestrado pelo Docker Compose, garantindo consistência e facilidade na execução.
+* **CRUD APIs:** Full CRUD operations for all main resources.
 
-### **📌 microsala (`8082`)**
-#### **Criar uma Sala**
-**POST** `http://localhost:8082/salas`
-```json
-{
-  "nome": "Sala de Reunião",
-  "capacidade": 5
-}
-```
+## 🛠️ Tecnologias Utilizadas
 
-#### **Listar Salas**
-**GET** `http://localhost:8082/salas`
+* **Linguagem:** Java 17
+* **Framework:** Spring Boot 3.2.5
+* **Componentes Spring:** Spring Web, Spring Data JPA, Spring AMQP, Spring Cloud Gateway
+* **Banco de Dados:** PostgreSQL (um por serviço)
+* **Mensageria:** RabbitMQ
+* **Container:** Docker & Docker Compose
+* **Build Tool:** Maven
+* **Utilitários:** Lombok
 
----
+## 🚀 Como Executar o Projeto
 
-### **📌 microreserva (`8083`)**
-#### **Criar uma Reserva**
-**POST** `http://localhost:8083/reservas/salvar
-```json
-{
-  "dataHora": "2025-08-01T14:00:00",
-  "sala_id": 1,
-  "usuario_id": 1
-}
-```
+### Pré-requisitos
+* [Docker](https://www.docker.com/get-started)
+* [Docker Compose](https://docs.docker.com/compose/install/)
+* [Git](https://git-scm.com/)
 
-#### **Listar Reservas**
-**GET** `http://localhost:8083/reservas`
+### Passos
+1.  **Clone o repositório:**
+    >```sh
+    >git clone [https://github.com/KronosZbr/Reservas_Salas_Final.git](https://github.com/KronosZbr/Reservas_Salas_Final.git)
+    >```
+2.  **Navegue até a pasta raiz do projeto:**
+    ```sh
+    cd Reservas_Salas_Final
+    ```
+3.  **Construa e inicie os containers:**
+    ```sh
+    docker-compose up --build
+    ```
+4.  **Pronto!** O ambiente estará disponível nos seguintes endereços:
+    * **API Gateway:** `http://localhost:8080`
+    * **RabbitMQ Management:** `http://localhost:15672` (login: `admin`/`admin`)
+    * **Adminer (Gerenciador de Banco):** `http://localhost:8090`
 
----
+## Endpoints da API
 
+Todas as requisições devem ser feitas para o API Gateway (`http://localhost:8080`).
 
+| Método   | Endpoint                  | Descrição                           |
+| :------- | :------------------------ | :---------------------------------- |
+| `POST`   | `/users`                  | Cria um novo usuário.               |
+| `GET`    | `/users`                  | Lista todos os usuários.            |
+| `PUT`    | `/users/{id}`             | Atualiza um usuário existente.      |
+| `DELETE` | `/users/{id}`             | Deleta um usuário.                  |
+| `POST`   | `/salas`                  | Cria uma nova sala.                 |
+| `GET`    | `/salas`                  | Lista todas as salas.               |
+| `PUT`    | `/salas/{id}`             | Atualiza uma sala existente.        |
+| `DELETE` | `/salas/{id}`             | Deleta uma sala.                    |
+| `POST`   | `/reservas`               | Cria uma nova reserva.              |
+| `GET`    | `/reservas`               | Lista todas as reservas.            |
+| `PUT`    | `/reservas/{id}`          | Atualiza uma reserva existente.     |
+| `DELETE` | `/reservas/{id}`          | Cancela (deleta) uma reserva.       |
+
+### Documentação Interativa (Swagger)
+Para uma documentação detalhada e interativa, acesse os seguintes links enquanto a aplicação estiver rodando:
+* **User Service:** `http://localhost:8081/swagger-ui.html`
+* **Sala Service:** `http://localhost:8082/swagger-ui.html`
+* **Reserva Service:** `http://localhost:8083/swagger-ui.html`
