@@ -1,4 +1,4 @@
-# 🚀 Sistema de Reserva de Salas com Microserviços
+# Sistema de Reserva de Salas com Microserviços
 
 ![Java](https://img.shields.io/badge/Java-17-blue.svg)
 ![Spring](https://img.shields.io/badge/Spring_Boot-3.2.5-green.svg)
@@ -9,46 +9,39 @@
 
 Este projeto demonstra a implementação de um sistema de reserva de salas utilizando uma arquitetura de microserviços desacoplados. O objetivo é aplicar conceitos modernos de desenvolvimento de software, como comunicação assíncrona, conteinerização e um ponto de entrada único através de um API Gateway.
 
-## ✨ Arquitetura do Sistema
+## Arquitetura do Sistema
 
 O diagrama abaixo ilustra a interação entre os componentes do sistema:
-
-```mermaid
-graph TD
-    subgraph "Cliente"
-        A[Usuário / Postman]
-    end
-
-    subgraph "Infraestrutura"
-        C(API Gateway)
-        F(RabbitMQ)
-    end
-
-    subgraph "Microserviços"
-        D[User Service]
-        E[Sala Service]
-        G[Reserva Service]
-    end
-
-    subgraph "Bancos de Dados"
-        H[(User DB)]
-        I[(Sala DB)]
-        J[(Reserva DB)]
-    end
-
-    A --> C
-    C -->|/users/**| D
-    C -->|/salas/**| E
-    C -->|/reservas/**| G
-
-    D --- H
-    E --- I
-    G --- J
-
-    D -- Publica Evento --> F
-    F -- Consome Evento --> G
 ```
-
+                       +---------------------------+
+                       |   Cliente (Navegador/App) |
+                       +-------------+-------------+
+                                     |
+                                     v
+                       +-------------+-------------+
+                       |   API Gateway (porta 8080)  |
+                       +---------------------------+
+                          |         |           |
+                /users/** | /salas/** | /reservas/**|
+                    |         |           |
+                    v         v           v
+                +---+-------+ +---+-----+ +---+---------+
+                | User      | | Sala    | | Reserva     |
+                | Service   | | Service | | Service     |
+                +-----------+ +---------+ +-------------+
+                    |  |          |           |  |
+                    |  |          |           |  |
+                    |  v          v           v  |
+                    |  +----------+---------+     |
+                    |  |  PostgreSQL (user)  |     |
+                    |  +---------------------+     |
+                    |                                |
+                    +-----(Publica Evento)------>+---+------+
+                                                 | RabbitMQ |
+                                                 +----------+
+                                                     |
+                           (Consome Evento)<-----------+
+```
 ## Core Concepts
 
 * **Microserviços:** Cada serviço possui uma única responsabilidade (Single Responsibility Principle) e seu próprio banco de dados, garantindo autonomia e escalabilidade.
@@ -57,7 +50,7 @@ graph TD
 * **Containerização:** Todo o ambiente, incluindo os serviços, bancos de dados e o message broker, é orquestrado pelo Docker Compose, garantindo consistência e facilidade na execução.
 * **CRUD APIs:** Full CRUD operations for all main resources.
 
-## 🛠️ Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
 * **Linguagem:** Java 17
 * **Framework:** Spring Boot 3.2.5
@@ -68,7 +61,7 @@ graph TD
 * **Build Tool:** Maven
 * **Utilitários:** Lombok
 
-## 🚀 Como Executar o Projeto
+## Como Executar o Projeto
 
 ### Pré-requisitos
 * [Docker](https://www.docker.com/get-started)
